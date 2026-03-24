@@ -84,17 +84,23 @@ g++ src/main.cpp -o programa -lSDL3 -lSDL3_image -lSDL3_ttf
 ```
 
 ### Windows (MinGW / MSYS2):
-g++ src/main.cpp -o programa -lSDL3 -lSDL3_image -lSDL3_ttf
+```bash
+g++ src/main.cpp -o programa -lSDL3 -lSDL3_image -lSDL3_ttf.
+```
 
 OBS:
 - Certifique-se de que as bibliotecas SDL3, SDL_image e SDL_ttf estão instaladas
 - Os arquivos .dll devem estar na mesma pasta do executável ou no PATH do sistema
 
 ## Como executar
+```bash
 ./programa caminho_da_imagem.ext
+```
 
 ### Exemplo
+```bash
 ./programa assets/imagem.png
+```
 
 ## Estrutura do Projeto
 proj1/
