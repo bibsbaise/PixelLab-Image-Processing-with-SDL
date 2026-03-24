@@ -103,6 +103,7 @@ OBS:
 ```
 
 ## Estrutura do Projeto
+```
 proj1/
 │
 ├── src/
@@ -111,12 +112,13 @@ proj1/
 ├── assets/
 ├── build/
 ├── README.md
+```
 
 ## Responsabilidades dos Integrantes
-Bianca — Carregamento de imagem, estrutura base e integração
-Daniel — Interface gráfica e interação
-Guilherme — Histograma e análise de imagem
-Júlia — Conversão para escala de cinza
+- Bianca — Carregamento de imagem, estrutura base e integração
+- Daniel — Interface gráfica e interação
+- Guilherme — Histograma e análise de imagem
+- Júlia — Conversão para escala de cinza
 
 Cada integrante foi responsável por uma parte específica do projeto, conforme descrito acima. O desenvolvimento foi realizado de forma colaborativa, com integração contínua das funcionalidades.
 
