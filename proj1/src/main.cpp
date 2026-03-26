@@ -3,23 +3,16 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
-
-/*  
-Para compilar: 
-g++ src/main.cpp -o pixel_lab.exe -I"C:/Users/bibiz/Downloads/compvisual/SDL3/include" -I"C:/Users/bibiz/Downloads/compvisual/SDL3_image/include" -L"C:/Users/bibiz/Downloads/compvisual/SDL3/lib" -L"C:/Users/bibiz/Downloads/compvisual/SDL3_image/lib" -lSDL3 -lSDL3_image -mconsole
-*/
+#include <cstdint>
+#include "equalization.h"
 
 /*
+Para compilar no PowerShell:
+g++ src/main.cpp src/equalization.cpp -o pixel_lab.exe -I"C:/Users/bibiz/Downloads/compvisual/SDL3/include" -I"C:/Users/bibiz/Downloads/compvisual/SDL3_image/include" -Isrc -L"C:/Users/bibiz/Downloads/compvisual/SDL3/lib" -L"C:/Users/bibiz/Downloads/compvisual/SDL3_image/lib" -lSDL3 -lSDL3_image -mconsole
+
 Para rodar:
 .\pixel_lab.exe assets/teste.jpg
 */
-
-#define SDL_MAIN_HANDLED
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3_image/SDL_image.h>
-#include <iostream>
-#include <cstdint>
 
 static SDL_Surface* convertToGrayscale(SDL_Surface* originalSurface) {
     if (!originalSurface) {
@@ -57,7 +50,7 @@ static SDL_Surface* convertToGrayscale(SDL_Surface* originalSurface) {
 
     Uint32* srcPixels = static_cast<Uint32*>(converted->pixels);
     Uint32* dstPixels = static_cast<Uint32*>(graySurface->pixels);
-    int totalPixels = converted->w * converted->h;
+    const int totalPixels = converted->w * converted->h;
 
     for (int i = 0; i < totalPixels; ++i) {
         Uint32 pixel = srcPixels[i];
@@ -85,6 +78,35 @@ static SDL_Surface* convertToGrayscale(SDL_Surface* originalSurface) {
     return graySurface;
 }
 
+static SDL_Texture* surfaceToTexture(SDL_Renderer* renderer, SDL_Surface* surface) {
+    if (!renderer || !surface) {
+        SDL_Log("surfaceToTexture: renderer ou surface nulos");
+        return nullptr;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture) {
+        SDL_Log("Erro ao criar textura: %s", SDL_GetError());
+        return nullptr;
+    }
+
+    return texture;
+}
+
+static void replaceTexture(SDL_Renderer* renderer, SDL_Texture*& texture, SDL_Surface* surface, SDL_FRect& rect) {
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+
+    texture = surfaceToTexture(renderer, surface);
+    if (texture) {
+        SDL_GetTextureSize(texture, &rect.w, &rect.h);
+        rect.x = 0.0f;
+        rect.y = 0.0f;
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cout << "Uso: programa caminho_da_imagem\n";
@@ -92,8 +114,6 @@ int main(int argc, char* argv[]) {
     }
 
     const char* imagePath = argv[1];
-
-    SDL_Log("Antes do SDL_Init");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Erro SDL: %s", SDL_GetError());
@@ -107,24 +127,24 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Surface* graySurface = convertToGrayscale(loadedSurface);
+    SDL_Surface* originalGraySurface = convertToGrayscale(loadedSurface);
     SDL_DestroySurface(loadedSurface);
 
-    if (!graySurface) {
+    if (!originalGraySurface) {
         SDL_Quit();
         return 1;
     }
 
     SDL_Window* window = SDL_CreateWindow(
-    "PixelLab - Grayscale",
-    graySurface->w,
-    graySurface->h,
-    0
-);
+        "PixelLab - Grayscale",
+        originalGraySurface->w,
+        originalGraySurface->h,
+        0
+    );
 
     if (!window) {
         SDL_Log("Erro ao criar janela: %s", SDL_GetError());
-        SDL_DestroySurface(graySurface);
+        SDL_DestroySurface(originalGraySurface);
         SDL_Quit();
         return 1;
     }
@@ -133,48 +153,69 @@ int main(int argc, char* argv[]) {
     if (!renderer) {
         SDL_Log("Erro ao criar renderer: %s", SDL_GetError());
         SDL_DestroyWindow(window);
-        SDL_DestroySurface(graySurface);
+        SDL_DestroySurface(originalGraySurface);
         SDL_Quit();
         return 1;
     }
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, graySurface);
-    SDL_DestroySurface(graySurface);
-
-    if (!texture) {
-        SDL_Log("Erro ao criar textura: %s", SDL_GetError());
+    SDL_Texture* currentTexture = surfaceToTexture(renderer, originalGraySurface);
+    if (!currentTexture) {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
+        SDL_DestroySurface(originalGraySurface);
         SDL_Quit();
         return 1;
     }
-
-    std::cout << "Imagem aberta com sucesso!\n";
 
     SDL_FRect rect;
     rect.x = 0.0f;
     rect.y = 0.0f;
-    SDL_GetTextureSize(texture, &rect.w, &rect.h);
+    SDL_GetTextureSize(currentTexture, &rect.w, &rect.h);
+
+    std::cout << "Imagem aberta com sucesso!\n";
+
+    bool isEqualized = false;
 
     SDL_Event event;
     bool running = true;
 
     while (running) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                running = false;
+            switch (event.type) {
+                case SDL_EVENT_QUIT:
+                    running = false;
+                    break;
+
+                case SDL_EVENT_KEY_DOWN:
+                    if (event.key.key == SDLK_E) {
+                        if (!isEqualized) {
+                            SDL_Surface* equalizedSurface = equalizeHistogram(originalGraySurface);
+                            if (equalizedSurface) {
+                                replaceTexture(renderer, currentTexture, equalizedSurface, rect);
+                                SDL_DestroySurface(equalizedSurface);
+                                isEqualized = true;
+                                SDL_SetWindowTitle(window, "PixelLab - Equalized");
+                            }
+                        } else {
+                            replaceTexture(renderer, currentTexture, originalGraySurface, rect);
+                            isEqualized = false;
+                            SDL_SetWindowTitle(window, "PixelLab - Grayscale");
+                        }
+                    }
+                    break;
             }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, texture, NULL, &rect);
+        SDL_RenderTexture(renderer, currentTexture, NULL, &rect);
         SDL_RenderPresent(renderer);
     }
 
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(currentTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SDL_DestroySurface(originalGraySurface);
     SDL_Quit();
 
     return 0;
