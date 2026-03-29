@@ -14,6 +14,129 @@ Para rodar:
 .\pixel_lab.exe assets/teste.jpg
 */
 
+// VAR GLOBAL
+int vetorIntensidade[256] = { 0 };
+//
+
+
+void calcular_histograma(SDL_Renderer *renderer, MyImage *image)
+{
+  SDL_Log(">>> calcular_histograma()");
+
+  if (!renderer)
+  {
+    SDL_Log("\t*** Erro: Renderer inválido (renderer == NULL).");
+    SDL_Log("<<< calcular_histograma()");
+    return;
+  }
+
+  if (!image || !image->surface)
+  {
+    SDL_Log("\t*** Erro: Imagem inválida (image == NULL ou image->surface == NULL).");
+    SDL_Log("<<< calcular_histograma()");
+    return;
+  }
+
+  // Resetar o vetor de intensidades
+  for (int i = 0; i < 256; ++i)
+  {
+    vetorIntensidade[i] = 0;
+  }
+
+  // Para acessar os pixels de uma superfície, precisamos chamar essa função.
+  SDL_LockSurface(image->surface);
+
+  const SDL_PixelFormatDetails *format = SDL_GetPixelFormatDetails(image->surface->format);
+  const size_t pixelCount = image->surface->w * image->surface->h;
+
+  Uint32 *pixels = (Uint32 *)image->surface->pixels;
+  Uint8 r = 0;
+  Uint8 g = 0;
+  Uint8 b = 0;
+  Uint8 a = 0;
+
+  for (size_t i = 0; i < pixelCount; ++i)
+  {
+    SDL_GetRGBA(pixels[i], format, NULL, &r, &g, &b, &a);
+
+    if (r == g && g == b)
+    {
+      vetorIntensidade[r]++;
+    }
+  }
+
+
+
+  // Após manipularmos os pixels da superfície, liberamos a superfície.
+  SDL_UnlockSurface(image->surface);
+
+  // Atualizamos a textura a ser renderizada pelo SDL_Renderer, com base no
+  // novo conteúdo da superfície.
+  SDL_DestroyTexture(image->texture);
+  image->texture = SDL_CreateTextureFromSurface(renderer, image->surface);
+  SDL_Log("<<< calcular_histograma()");
+}
+
+// =====================
+
+float calcularMediaHistograma(int vetorIntensidade[256])
+{
+  int soma = 0;
+  int totalPixels = 0;
+
+  for (int i = 0; i < 256; ++i)
+  {
+    soma += vetorIntensidade[i] * i; // multiplicamos a quantidade de pixels pela intensidade correspondente
+    totalPixels += vetorIntensidade[i]; // somamos a quantidade total de pixels
+  }
+
+  if (totalPixels == 0)
+    return 0.0f; // evitar divisão por zero
+
+  return (float)soma / totalPixels; // calculamos a média dividindo a soma pelo total de pixels
+}
+
+int classificarBrilho(float media)
+{
+  if (media < 85.0f)
+    return 0; // imagem escura
+  else if (media < 170.0f)
+    return 1; // imagem média
+  else
+    return 2; // imagem clara
+}
+
+// ==========================
+
+float calcularDesvioPadrao(int vetorIntensidade[256], float media)
+{
+  int totalPixels = 0;
+  float somaQuadrados = 0.0f;
+
+  for (int i = 0; i < 256; ++i)
+  {
+    totalPixels += vetorIntensidade[i]; // somamos a quantidade total de pixels
+    somaQuadrados += vetorIntensidade[i] * (i - media) * (i - media); // somamos o quadrado da diferença entre a intensidade e a média, multiplicado pela quantidade de pixels daquela intensidade
+  }
+
+  if (totalPixels == 0)
+    return 0.0f; // evitar divisão por zero
+
+  return sqrtf(somaQuadrados / totalPixels); // calculamos o desvio padrão dividindo a soma dos quadrados pelo total de pixels e tirando a raiz quadrada
+}
+
+int classificarContraste(float desvioPadrao)
+{
+  if (desvioPadrao < 50.0f)
+    return 0; // baixo contraste
+  else if (desvioPadrao < 100.0f)
+    return 1; // contraste médio
+  else
+    return 2; // alto contraste
+}
+
+
+
 static SDL_Surface* convertToGrayscale(SDL_Surface* originalSurface) {
     if (!originalSurface) {
         SDL_Log("convertToGrayscale: surface nula");
@@ -114,6 +237,8 @@ int main(int argc, char* argv[]) {
     }
 
     const char* imagePath = argv[1];
+
+
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Erro SDL: %s", SDL_GetError());
