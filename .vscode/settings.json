@@ -1,0 +1,22 @@
+{
+    "terminal.integrated.profiles.windows": {
+        "MSYS2 UCRT64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": [
+                "-lc",
+                "export MSYSTEM=UCRT64; export CHERE_INVOKING=1; exec bash"
+            ]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "MSYS2 UCRT64",
+    "terminal.integrated.automationProfile.windows": {
+        "path": "C:\\msys64\\usr\\bin\\bash.exe",
+        "args": [
+            "-lc",
+            "export MSYSTEM=UCRT64; export CHERE_INVOKING=1; exec bash"
+        ]
+    },
+    "cmake.generator": "Ninja",
+    "cmake.configureOnOpen": true,
+    "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe"
+}
