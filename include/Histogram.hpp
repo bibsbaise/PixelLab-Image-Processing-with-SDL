@@ -5,11 +5,19 @@
 
 class Histogram : public Component {
 public:
-  Histogram(const std::array<uint8_t, 256> &data, int width, int height);
+  Histogram(SDL_Renderer *renderer, const std::array<int, 256> &data, SDL_FRect rect, SDL_Color barColor,
+            SDL_Color outlineColor);
   ~Histogram();
 
-  void render(SDL_Renderer *renderer) const override;
+  void handleEvent(const SDL_Event &event) override;
+  void setData(const std::array<int, 256> &data);
+  void render() const override;
 
 private:
-  const std::array<uint8_t, 256> data_;
+  SDL_Renderer *renderer_;
+
+  std::array<int, 256> data_;
+
+  SDL_Color barColor_;
+  SDL_Color outlineColor_;
 };
