@@ -1,29 +1,29 @@
 #include "Button.hpp"
 
 Button::Button(SDL_Renderer *renderer, TTF_TextEngine *textEngine, TTF_Font *font, const std::string &text,
-               SDL_FRect rect, SDL_Color bg, SDL_Color fg, Callback onClick)
-    : renderer_(renderer), textEngine_(textEngine), font_(font), label_(text), bg_(bg), fg_(fg),
-      onClick_(std::move(onClick)), Component() {
+               SDL_FRect rect, SDL_Color bg, SDL_Color hoverBg, SDL_Color pressBg, Callback onClick)
+    : renderer_(renderer), textEngine_(textEngine), font_(font), label_(text), bg_(bg), hoverBg_(hoverBg),
+      pressBg_(pressBg), onClick_(std::move(onClick)), Component() {
   rect_ = rect;
-  rebuildText();
 }
 
 Button::~Button() = default;
 
 void Button::handleEvent(const SDL_Event &event) {
-  bool now;
   switch (event.type) {
   case SDL_EVENT_MOUSE_MOTION:
-    now = contains(event.motion.x, event.motion.y);
-    if (now != hovered_) {
-      hovered_ = now;
-      rebuildText();
-    }
+    hovered_ = contains(event.motion.x, event.motion.y);
     break;
   case SDL_EVENT_MOUSE_BUTTON_DOWN:
     if (event.button.button == SDL_BUTTON_LEFT && contains(event.button.x, event.button.y)) {
+      pressed_ = true;
       if (onClick_)
         onClick_();
+    }
+    break;
+  case SDL_EVENT_MOUSE_BUTTON_UP:
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      pressed_ = false;
     }
     break;
   default:
@@ -31,24 +31,29 @@ void Button::handleEvent(const SDL_Event &event) {
   }
 }
 
-void Button::render(SDL_Renderer *renderer) const {
-  SDL_SetRenderDrawColor(renderer, bg_.r, bg_.g, bg_.b, bg_.a);
-  SDL_RenderFillRect(renderer, &rect_);
+void Button::setText(const std::string &text) { label_ = text; }
 
-  if (text_) {
-    float x = rect_.x + (rect_.w - textW_) / 2;
-    float y = rect_.y + (rect_.h - textH_) / 2;
-    TTF_DrawRendererText(text_.get(), x, y);
+void Button::render() const {
+  SDL_Color currentBg = pressed_ ? pressBg_ : hovered_ ? hoverBg_ : bg_;
+  SDL_SetRenderDrawColor(renderer_, currentBg.r, currentBg.g, currentBg.b, currentBg.a);
+  SDL_RenderFillRect(renderer_, &rect_);
+
+  const auto &text = rebuildText();
+
+  if (text) {
+    int textW, textH;
+    TTF_GetTextSize(text.get(), &textW, &textH);
+    float x = rect_.x + (rect_.w - textW) / 2;
+    float y = rect_.y + (rect_.h - textH) / 2;
+    TTF_DrawRendererText(text.get(), x, y);
   }
 }
 
-void Button::rebuildText() {
-  TTF_SetFontStyle(font_, hovered_ ? TTF_STYLE_BOLD : TTF_STYLE_NORMAL);
+const TextPtr &Button::rebuildText() const {
+  TextPtr text(TTF_CreateText(textEngine_, font_, label_.c_str(), 0));
+  if (!text)
+    return text;
 
-  text_.reset(TTF_CreateText(textEngine_, font_, label_.c_str(), 0));
-  if (!text_)
-    return;
-
-  TTF_SetTextColor(text_.get(), fg_.r, fg_.g, fg_.b, fg_.a);
-  TTF_GetTextSize(text_.get(), &textW_, &textH_);
+  TTF_SetTextColor(text.get(), 0, 0, 0, 255);
+  return text;
 }

@@ -14,13 +14,14 @@ public:
   using Callback = std::function<void()>;
 
   Button(SDL_Renderer *renderer, TTF_TextEngine *textEngine, TTF_Font *font, const std::string &text,
-         SDL_FRect rect, SDL_Color bg, SDL_Color fg, Callback onClick);
+         SDL_FRect rect, SDL_Color bg, SDL_Color hoverBg, SDL_Color pressBg, Callback onClick);
 
   void handleEvent(const SDL_Event &event) override;
-  void render(SDL_Renderer *renderer) const override;
+  void setText(const std::string &text);
+  void render() const override;
 
 private:
-  void rebuildText();
+  const TextPtr &rebuildText() const;
 
   SDL_Renderer *renderer_;
   TTF_TextEngine *textEngine_;
@@ -28,10 +29,9 @@ private:
 
   std::string label_;
   SDL_Color bg_;
-  SDL_Color fg_;
+  SDL_Color hoverBg_;
+  SDL_Color pressBg_;
   Callback onClick_;
   bool hovered_ = false;
-
-  TextPtr text_;
-  int textW_ = 0, textH_ = 0;
+  bool pressed_ = false;
 };
