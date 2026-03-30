@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <iostream>
 
 SurfacePtr convertToGrayscale(const SurfacePtr &originalSurface) {

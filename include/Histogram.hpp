@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Component.hpp"
-#include <vector>
+#include <array>
 
 class Histogram : public Component {
 public:

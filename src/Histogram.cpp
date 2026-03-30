@@ -1,4 +1,5 @@
 #include "Histogram.hpp"
+#include <algorithm>
 
 Histogram::Histogram(SDL_Renderer *renderer, const std::array<int, 256> &data, SDL_FRect rect,
                      SDL_Color barColor, SDL_Color outlineColor)
