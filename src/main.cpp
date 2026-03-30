@@ -4,9 +4,13 @@
 #include <iostream>
 
 int main(int argc, char **argv) {
+  if (argc < 2) {
+    std::cout << "Uso: " << argv[0] << " caminho_da_imagem" << std::endl;
+    return 1;
+  }
+  
   App app;
-
-  if (!app.init()) {
+  if (!app.init(argv[1])) {
     return 1;
   }
 
