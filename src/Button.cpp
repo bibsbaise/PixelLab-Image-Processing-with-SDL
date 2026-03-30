@@ -1,9 +1,10 @@
 #include "Button.hpp"
 
 Button::Button(SDL_Renderer *renderer, TTF_TextEngine *textEngine, TTF_Font *font, const std::string &text,
-               SDL_FRect rect, SDL_Color bg, SDL_Color hoverBg, SDL_Color pressBg, Callback onClick)
-    : renderer_(renderer), textEngine_(textEngine), font_(font), label_(text), bg_(bg), hoverBg_(hoverBg),
-      pressBg_(pressBg), onClick_(std::move(onClick)), Component() {
+               SDL_FRect rect, SDL_Color textColor, SDL_Color bg, SDL_Color hoverBg, SDL_Color pressBg,
+               Callback onClick)
+    : renderer_(renderer), textEngine_(textEngine), font_(font), label_(text), textColor_(textColor), bg_(bg),
+      hoverBg_(hoverBg), pressBg_(pressBg), onClick_(std::move(onClick)), Component() {
   rect_ = rect;
 }
 
@@ -49,11 +50,13 @@ void Button::render() const {
   }
 }
 
-const TextPtr &Button::rebuildText() const {
-  TextPtr text(TTF_CreateText(textEngine_, font_, label_.c_str(), 0));
-  if (!text)
-    return text;
+const TextPtr Button::rebuildText() const {
+  auto text = TTF_CreateText(textEngine_, font_, label_.c_str(), 0);
+  if (!text) {
+    SDL_Log("Failed to create text for button: %s", SDL_GetError());
+    return nullptr;
+  }
 
-  TTF_SetTextColor(text.get(), 0, 0, 0, 255);
-  return text;
+  TTF_SetTextColor(text, textColor_.r, textColor_.g, textColor_.b, textColor_.a);
+  return TextPtr(text);
 }
