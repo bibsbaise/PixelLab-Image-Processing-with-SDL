@@ -53,10 +53,23 @@ struct TextDeleter {
   }
 };
 
+// literalmente a representação de uma janela no sistema operacional
 using WindowPtr = std::unique_ptr<SDL_Window, WindowDeleter>;
+
+// atrelado a uma janela, nos permite desenhar nela
 using RendererPtr = std::unique_ptr<SDL_Renderer, RendererDeleter>;
+
+// representação de uma imagem na GPU, criada a partir de uma Surface
 using TexturePtr = std::unique_ptr<SDL_Texture, TextureDeleter>;
+
+// representação de uma imagem na RAM, criada a partir de um arquivo ou manipulada pela CPU
 using SurfacePtr = std::unique_ptr<SDL_Surface, SurfaceDeleter>;
+
+// usado para renderizar textos, criado a partir de uma fonte
 using TextEnginePtr = std::unique_ptr<TTF_TextEngine, TextEngineDeleter>;
+
+// representação de uma fonte, é criada a partir de um arquivo .ttf
 using FontPtr = std::unique_ptr<TTF_Font, FontDeleter>;
+
+// representação de um texto, criado a partir de uma string em uma text engine
 using TextPtr = std::unique_ptr<TTF_Text, TextDeleter>;
