@@ -10,6 +10,7 @@ add_executable(pixellab
     src/App.cpp
     src/Button.cpp
     src/Histogram.cpp
+    src/ImageProcessing.cpp
 )
 
 target_include_directories(pixellab
