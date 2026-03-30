@@ -3,10 +3,8 @@
 Button::Button(SDL_Renderer *renderer, TTF_TextEngine *textEngine, TTF_Font *font, const std::string &text,
                SDL_FRect rect, SDL_Color textColor, SDL_Color bg, SDL_Color hoverBg, SDL_Color pressBg,
                Callback onClick)
-    : renderer_(renderer), textEngine_(textEngine), font_(font), label_(text), textColor_(textColor), bg_(bg),
-      hoverBg_(hoverBg), pressBg_(pressBg), onClick_(std::move(onClick)), Component() {
-  rect_ = rect;
-}
+    : Component(rect), renderer_(renderer), textEngine_(textEngine), font_(font), label_(text),
+      textColor_(textColor), bg_(bg), hoverBg_(hoverBg), pressBg_(pressBg), onClick_(std::move(onClick)) {}
 
 Button::~Button() = default;
 

@@ -4,7 +4,7 @@
 
 class Component {
 public:
-  Component() = default;
+  Component(SDL_FRect rect) : rect_(rect) {}
 
   Component(const Component &) = delete;
   Component &operator=(const Component &) = delete;
@@ -14,7 +14,7 @@ public:
 
   virtual ~Component() = default;
   virtual void handleEvent(const SDL_Event &event) = 0;
-  virtual void render(SDL_Renderer *renderer) const = 0;
+  virtual void render() const = 0;
 
   bool contains(float x, float y) const {
     return x >= rect_.x && x <= rect_.x + rect_.w && y >= rect_.y && y <= rect_.y + rect_.h;
