@@ -14,7 +14,7 @@ App::~App() {
   textTexture_.reset();
   mainRenderer_.reset();
   mainWindow_.reset();
-
+  toolsRenderer_.reset();
   toolsWindow_.reset();
 
   TTF_Quit();
@@ -67,38 +67,38 @@ bool App::init(const std::string &imagePath) {
     return false;
   }
 
-  mainWindow_.reset(rawMainWindow);
   mainRenderer_.reset(rawMainRenderer);
-  toolsWindow_.reset(rawToolsWindow);
+  mainWindow_.reset(rawMainWindow);
   toolsRenderer_.reset(rawToolsRenderer);
+  toolsWindow_.reset(rawToolsWindow);
 
   const char *fontPath = SDL_getenv("APP_FONT_PATH");
   if (!fontPath || !*fontPath) {
 #if defined(__APPLE__)
     fontPath = "/System/Library/Fonts/Monaco.ttf";
 #elif defined(_WIN32)
-    fontPath = "C:\\Windows\\Fonts\\arial.ttf";
+    fontPath = "C:\\Windows\\Fonts\\Arial.ttf";
 #elif defined(__linux__)
     fontPath = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
 #else
     SDL_Log("No default font path for this platform. Please set APP_FONT_PATH environment variable.");
     mainRenderer_.reset();
     mainWindow_.reset();
-    toolsWindow_.reset();
     toolsRenderer_.reset();
+    toolsWindow_.reset();
     TTF_Quit();
     SDL_Quit();
     return false;
 #endif
   }
 
-  font_.reset(TTF_OpenFont(fontPath, 24));
+  font_.reset(TTF_OpenFont(fontPath, kFontSize));
   if (!font_) {
     SDL_Log("Failed to load font: %s", SDL_GetError());
     mainRenderer_.reset();
     mainWindow_.reset();
-    toolsWindow_.reset();
     toolsRenderer_.reset();
+    toolsWindow_.reset();
     TTF_Quit();
     SDL_Quit();
     return false;
@@ -110,8 +110,8 @@ bool App::init(const std::string &imagePath) {
     font_.reset();
     mainRenderer_.reset();
     mainWindow_.reset();
-    toolsWindow_.reset();
     toolsRenderer_.reset();
+    toolsWindow_.reset();
     TTF_Quit();
     SDL_Quit();
     return false;
@@ -125,6 +125,11 @@ bool App::init(const std::string &imagePath) {
       std::make_unique<Button>(rawToolsRenderer, textEngine_.get(), font_.get(), kEqualizeText,
                                SDL_FRect{240, 280, 220, 50}, kButtonTextColor, kButtonBgColor,
                                kButtonHoverBgColor, kButtonPressBgColor, [this]() { toggleEqualization(); });
+  lblAvgIntensity_ = std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
+                                             "Média: ...", SDL_FRect{20, 280, 200, 50}, kLabelTextColor);
+  lblStddevIntensity_ =
+      std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
+                              "Desvio Padrão: ...", SDL_FRect{20, 305, 300, 50}, kLabelTextColor);
 
   positionWindows();
 
@@ -250,6 +255,8 @@ void App::render() {
   // renderiza os componentes
   btnToggleEqualization_->render();
   histogram_->render();
+  lblAvgIntensity_->render();
+  lblStddevIntensity_->render();
 
   // apresenta tudo o que foi renderizado
   SDL_RenderPresent(mainRenderer_.get());

@@ -2,6 +2,7 @@
 
 #include "Button.hpp"
 #include "Histogram.hpp"
+#include "Label.hpp"
 #include "SDLDeleter.hpp"
 #include <memory>
 #include <string>
@@ -9,10 +10,13 @@
 // dimensão das janelas
 constexpr int kMaxWindowSize = 720;
 constexpr int kToolsWindowWidth = 480;
-constexpr int kToolsWindowHeight = 360;
+constexpr int kToolsWindowHeight = 350;
 
 // cor de fundo das janelas
 constexpr SDL_Color kWindowBgColor{240, 242, 245, 255}; // #f0f2f5
+
+// config de font
+constexpr int kFontSize = 18;
 
 // config do butão
 constexpr SDL_Color kButtonTextColor{255, 255, 255, 255};   // #FFFFFF
@@ -23,6 +27,9 @@ constexpr SDL_Color kButtonPressBgColor{0, 86, 179, 255};   // #0056B3
 // config do histograma
 constexpr SDL_Color kHistogramBarColor{102, 102, 102, 255}; // #666666
 constexpr SDL_Color kHistogramOutlineColor{0, 0, 0, 255};   // #000000
+
+// config da label
+constexpr SDL_Color kLabelTextColor{0, 0, 0, 255}; // #000000
 
 // textos
 constexpr char kWindowDefaultTitle[] = "PixelLab - Grayscale";
@@ -75,4 +82,6 @@ private:
   // componentes da interface
   std::unique_ptr<Button> btnToggleEqualization_;
   std::unique_ptr<Histogram> histogram_;
+  std::unique_ptr<Label> lblAvgIntensity_;
+  std::unique_ptr<Label> lblStddevIntensity_;
 };
