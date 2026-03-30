@@ -1,0 +1,11 @@
+#pragma once
+
+#include "SDLDeleter.hpp"
+#include <SDL3/SDL.h>
+
+SurfacePtr convertToGrayscale(const SurfacePtr &originalSurface);
+TexturePtr surfaceToTexture(const RendererPtr &renderer, const SurfacePtr &surface);
+SurfacePtr equalizeHistogram(const SurfacePtr &graySurface);
+
+std::array<int, 256> calculateHistogram(SDL_Surface *surface);
+std::array<int, 256> calculateCDF(const std::array<int, 256> &hist);
