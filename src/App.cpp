@@ -263,7 +263,7 @@ void App::handleKeyDown(const SDL_KeyboardEvent &e, bool &running) {
     toggleEqualization();
     break;
   case SDLK_S:
-    saveCurrentImage("output.png");
+    saveCurrentImage("output_image.png");
     break;
   case SDLK_ESCAPE:
     SDL_Log("Escape key pressed, exiting...");
