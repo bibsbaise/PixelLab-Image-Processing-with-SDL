@@ -192,6 +192,23 @@ void App::toggleEqualization() {
   createTextureFromCurrent();
 }
 
+bool App::saveCurrentImage(const std::string& path) {
+  SDL_Surface* surface = isEqualized_ ? equalizedSurface_.get() : originalGraySurface_.get();
+
+  if (!surface) {
+    SDL_Log("No surface available to save.");
+    return false;
+  }
+
+  if (!IMG_SavePNG(surface, path.c_str())) {
+    SDL_Log("Failed to save image: %s", SDL_GetError());
+    return false;
+  }
+
+  SDL_Log("Image saved successfully to %s", path.c_str());
+  return true;
+}
+
 void App::run() {
   bool running = true;
 
@@ -226,8 +243,7 @@ void App::handleKeyDown(const SDL_KeyboardEvent &e, bool &running) {
     toggleEqualization();
     break;
   case SDLK_S:
-    SDL_Log("Key 'S' pressed but save logic is not implemented yet");
-    // TODO: implementar logica de salvar imagem processada
+    saveCurrentImage("output.png");
     break;
   case SDLK_ESCAPE:
     SDL_Log("Escape key pressed, exiting...");

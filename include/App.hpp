@@ -60,6 +60,7 @@ private:
   void handleKeyDown(const SDL_KeyboardEvent &e, bool &running);
   void render();
   void positionWindows();
+  bool saveCurrentImage(const std::string& path);
 
 private:
   // monte de ponteiros inteligentes para gerenciar recursos do SDL
