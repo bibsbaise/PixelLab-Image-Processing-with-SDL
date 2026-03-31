@@ -126,10 +126,16 @@ bool App::init(const std::string &imagePath) {
                                SDL_FRect{240, 280, 220, 50}, kButtonTextColor, kButtonBgColor,
                                kButtonHoverBgColor, kButtonPressBgColor, [this]() { toggleEqualization(); });
   lblAvgIntensity_ = std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
-                                             "Média: ...", SDL_FRect{20, 280, 200, 50}, kLabelTextColor);
+                                             "Média: ", SDL_FRect{20, 280, 200, 50}, kLabelTextColor);
   lblStddevIntensity_ =
       std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
-                              "Desvio Padrão: ...", SDL_FRect{20, 305, 300, 50}, kLabelTextColor);
+                              "Desvio Padrão: ", SDL_FRect{20, 305, 300, 50}, kLabelTextColor);
+
+  float media = calcularMediaHistograma(histogramGrayscaleData_);
+  float desvio = calcularDesvioPadrao(histogramGrayscaleData_, media);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media));
+  lblStddevIntensity_->setText("Desvio Padrão: " + std::to_string(desvio));
 
   positionWindows();
 
@@ -188,6 +194,14 @@ void App::toggleEqualization() {
     histogram_->setData(histogramGrayscaleData_);
     btnToggleEqualization_->setText(kEqualizeText);
   }
+
+  const auto& hist = isEqualized_ ? histogramEqualizedData_ : histogramGrayscaleData_;
+
+  float media = calcularMediaHistograma(hist);
+  float desvio = calcularDesvioPadrao(hist, media);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media));
+  lblStddevIntensity_->setText("Desvio Padrão: " + std::to_string(desvio));
 
   createTextureFromCurrent();
 }
