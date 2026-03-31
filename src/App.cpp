@@ -134,8 +134,11 @@ bool App::init(const std::string &imagePath) {
   float media = calcularMediaHistograma(histogramGrayscaleData_);
   float desvio = calcularDesvioPadrao(histogramGrayscaleData_, media);
 
-  lblAvgIntensity_->setText("Média: " + std::to_string(media));
-  lblStddevIntensity_->setText("Desvio Padrão: " + std::to_string(desvio));
+  std::string brilho = classificarBrilhoTexto(media);
+  std::string contraste = classificarContrasteTexto(desvio);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media) + " (" + brilho + ")");
+  lblStddevIntensity_->setText("Desvio: " + std::to_string(desvio) + " (" + contraste + ")");
 
   positionWindows();
 
@@ -200,8 +203,11 @@ void App::toggleEqualization() {
   float media = calcularMediaHistograma(hist);
   float desvio = calcularDesvioPadrao(hist, media);
 
-  lblAvgIntensity_->setText("Média: " + std::to_string(media));
-  lblStddevIntensity_->setText("Desvio Padrão: " + std::to_string(desvio));
+  std::string brilho = classificarBrilhoTexto(media);
+  std::string contraste = classificarContrasteTexto(desvio);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media) + " (" + brilho + ")");
+  lblStddevIntensity_->setText("Desvio: " + std::to_string(desvio) + " (" + contraste + ")");
 
   createTextureFromCurrent();
 }
