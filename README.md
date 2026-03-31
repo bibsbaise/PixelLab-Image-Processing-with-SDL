@@ -90,16 +90,8 @@ cmake -S . -B build && cmake --build build
 ### Windows (MinGW / MSYS2):
 
 ```bash
-pacman -S --needed base-devel \
-  mingw-w64-ucrt-x86_64-toolchain \
-  mingw-w64-ucrt-x86_64-cmake \
-  mingw-w64-ucrt-x86_64-ninja \
-  mingw-w64-ucrt-x86_64-sdl3 \
-  mingw-w64-ucrt-x86_64-sdl3-image \
-  mingw-w64-ucrt-x86_64-sdl3-ttf
-
-cmake -S . -B build -G Ninja
-cmake --build build
+md build
+g++ -std=c++17 -Wall -Iinclude -I"C:/mackenzie/sdl3/include" src/main.cpp src/App.cpp src/Button.cpp src/Histogram.cpp src/Label.cpp src/ImageProcessing.cpp -L"C:/mackenzie/sdl3/lib" -o build/pixellab.exe -lSDL3 -lSDL3_image -lSDL3_ttf
 ```
 
 OBS:
