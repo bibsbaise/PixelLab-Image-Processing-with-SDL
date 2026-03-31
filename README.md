@@ -24,20 +24,22 @@ O programa é executado via linha de comando, recebendo como entrada o caminho d
 O sistema implementa as seguintes funcionalidades:
 
 ### 1. Carregamento de imagem
+
 - Suporte aos formatos PNG, JPG e BMP
 - Tratamento de erros (arquivo inexistente ou inválido)
 
 ---
 
 ### 2. Conversão para escala de cinza
+
 - Verificação se a imagem já está em grayscale
 - Conversão utilizando a fórmula:
   Y = 0.2125R + 0.7154G + 0.0721B
 
-
 ---
 
 ### 3. Exibição do histograma
+
 - Cálculo do histograma da imagem
 - Exibição gráfica na janela secundária
 - Análise de:
@@ -47,12 +49,14 @@ O sistema implementa as seguintes funcionalidades:
 ---
 
 ### 4. Interface gráfica
+
 - Janela principal: exibição da imagem
 - Janela secundária: histograma + botão de interação
 
 ---
 
 ### 5. Equalização do histograma
+
 - Equalização da imagem ao clicar no botão
 - Atualização dinâmica da imagem e do histograma
 - Alternância entre imagem original e equalizada
@@ -60,9 +64,8 @@ O sistema implementa as seguintes funcionalidades:
 ---
 
 ### 6. Salvamento da imagem
-- Ao pressionar a tecla **S**, a imagem atual é salva como:
-  output_image.png
 
+- Ao pressionar a tecla **S**, a imagem atual é salva como: output_image.png
 - O arquivo é sobrescrito caso já exista
 
 ---
@@ -79,30 +82,44 @@ O sistema implementa as seguintes funcionalidades:
 ## Como compilar
 
 ### Linux / WSL:
+
 ```bash
-g++ src/main.cpp -o programa -lSDL3 -lSDL3_image -lSDL3_ttf
+cmake -S . -B build && cmake --build build
 ```
 
 ### Windows (MinGW / MSYS2):
+
 ```bash
-g++ src/main.cpp -o programa -lSDL3 -lSDL3_image -lSDL3_ttf.
+md build
+g++ -std=c++17 -Wall -Iinclude -I"C:/mackenzie/sdl3/include" src/main.cpp src/App.cpp src/Button.cpp src/Histogram.cpp src/Label.cpp src/ImageProcessing.cpp -L"C:/mackenzie/sdl3/lib" -o build/pixellab.exe -lSDL3 -lSDL3_image -lSDL3_ttf
 ```
 
 OBS:
 - Certifique-se de que as bibliotecas SDL3, SDL_image e SDL_ttf estão instaladas
 - Os arquivos .dll devem estar na mesma pasta do executável ou no PATH do sistema
 
-## Como executar
+### MacOS
+
 ```bash
-./programa caminho_da_imagem.ext
+xcode-select --install
+brew install cmake sdl3 sdl3_image sdl3_ttf
+cmake -S . -B build && cmake --build build
+```
+
+## Como executar
+
+```bash
+./build/pixellab caminho_da_imagem.ext
 ```
 
 ### Exemplo
+
 ```bash
-./programa assets/imagem.png
+./build/pixellab assets/imagem.png
 ```
 
 ## Estrutura do Projeto
+
 ```
 proj1/
 │
@@ -115,6 +132,7 @@ proj1/
 ```
 
 ## Responsabilidades dos Integrantes
+
 - Bianca — Carregamento de imagem, estrutura base e integração
 - Daniel — Interface gráfica e interação
 - Guilherme — Histograma e análise de imagem
@@ -123,5 +141,6 @@ proj1/
 Cada integrante foi responsável por uma parte específica do projeto, conforme descrito acima. O desenvolvimento foi realizado de forma colaborativa, com integração contínua das funcionalidades.
 
 ## Observações Finais
+
 - O projeto segue os requisitos definidos pelo enunciado da disciplina
 - O código foi desenvolvido com foco em organização, modularização e clareza
