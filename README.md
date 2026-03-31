@@ -118,25 +118,12 @@ cmake -S . -B build && cmake --build build
 ./build/pixellab assets/imagem.png
 ```
 
-## Estrutura do Projeto
-
-```
-proj1/
-│
-├── src/
-│   └── main.cpp
-├── include/
-├── assets/
-├── build/
-├── README.md
-```
-
 ## Responsabilidades dos Integrantes
 
-- Bianca — Carregamento de imagem, estrutura base e integração
+- Bianca — Carregamento de imagem e conversão para escala de cinza
 - Daniel — Interface gráfica e interação
 - Guilherme — Histograma e análise de imagem
-- Júlia — Conversão para escala de cinza
+- Júlia — Salvamento da imagem e classificações do histograma
 
 Cada integrante foi responsável por uma parte específica do projeto, conforme descrito acima. O desenvolvimento foi realizado de forma colaborativa, com integração contínua das funcionalidades.
 
