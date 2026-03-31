@@ -9,3 +9,8 @@ SurfacePtr equalizeHistogram(const SurfacePtr &graySurface);
 
 std::array<int, 256> calculateHistogram(SDL_Surface *surface);
 std::array<int, 256> calculateCDF(const std::array<int, 256> &hist);
+
+float calcularMediaHistograma(const std::array<int, 256> &vetorIntensidade);
+int classificarBrilho(float media);
+float calcularDesvioPadrao(const std::array<int, 256> &vetorIntensidade, float media);
+int classificarContraste(float desvioPadrao);

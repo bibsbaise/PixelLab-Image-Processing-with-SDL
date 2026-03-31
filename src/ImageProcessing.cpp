@@ -185,3 +185,54 @@ std::array<int, 256> calculateCDF(const std::array<int, 256> &hist) {
   }
   return cdf;
 }
+
+float calcularMediaHistograma(const std::array<int, 256> &vetorIntensidade) {
+  int soma = 0;
+  int totalPixels = 0;
+
+  for (int i = 0; i < 256; ++i) {
+    soma += vetorIntensidade[i] * i; // multiplicamos a quantidade de pixels pela intensidade correspondente
+    totalPixels += vetorIntensidade[i]; // somamos a quantidade total de pixels
+  }
+
+  if (totalPixels == 0)
+    return 0.0f; // evitar divisão por zero
+
+  return static_cast<float>(soma) / totalPixels; // calculamos a média dividindo a soma pelo total de pixels
+}
+
+int classificarBrilho(float media) {
+  if (media < 85.0f)
+    return 0; // imagem escura
+  else if (media < 170.0f)
+    return 1; // imagem média
+  else
+    return 2; // imagem clara
+}
+
+float calcularDesvioPadrao(const std::array<int, 256> &vetorIntensidade, float media) {
+  int totalPixels = 0;
+  float somaQuadrados = 0.0f;
+
+  for (int i = 0; i < 256; ++i) {
+    totalPixels += vetorIntensidade[i]; // somamos a quantidade total de pixels
+    somaQuadrados += vetorIntensidade[i] * (i - media) *
+                     (i - media); // somamos o quadrado da diferença entre a intensidade e a média,
+                                  // multiplicado pela quantidade de pixels daquela intensidade
+  }
+
+  if (totalPixels == 0)
+    return 0.0f; // evitar divisão por zero
+
+  return sqrtf(somaQuadrados / totalPixels); // calculamos o desvio padrão dividindo a soma dos quadrados pelo
+                                             // total de pixels e tirando a raiz quadrada
+}
+
+int classificarContraste(float desvioPadrao) {
+  if (desvioPadrao < 50.0f)
+    return 0; // baixo contraste
+  else if (desvioPadrao < 100.0f)
+    return 1; // contraste médio
+  else
+    return 2; // alto contraste
+}
