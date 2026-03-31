@@ -236,3 +236,19 @@ int classificarContraste(float desvioPadrao) {
   else
     return 2; // alto contraste
 }
+
+std::string classificarBrilhoTexto(float media) {
+  int c = classificarBrilho(media);
+
+  if (c == 0) return "Escura";
+  if (c == 1) return "Média";
+  return "Clara";
+}
+
+std::string classificarContrasteTexto(float desvio) {
+  int c = classificarContraste(desvio);
+
+  if (c == 0) return "Baixo";
+  if (c == 1) return "Médio";
+  return "Alto";
+}

@@ -126,10 +126,19 @@ bool App::init(const std::string &imagePath) {
                                SDL_FRect{240, 280, 220, 50}, kButtonTextColor, kButtonBgColor,
                                kButtonHoverBgColor, kButtonPressBgColor, [this]() { toggleEqualization(); });
   lblAvgIntensity_ = std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
-                                             "Média: ...", SDL_FRect{20, 280, 200, 50}, kLabelTextColor);
+                                             "Média: ", SDL_FRect{20, 280, 200, 50}, kLabelTextColor);
   lblStddevIntensity_ =
       std::make_unique<Label>(rawToolsRenderer, textEngine_.get(), font_.get(),
-                              "Desvio Padrão: ...", SDL_FRect{20, 305, 300, 50}, kLabelTextColor);
+                              "Desvio Padrão: ", SDL_FRect{20, 305, 300, 50}, kLabelTextColor);
+
+  float media = calcularMediaHistograma(histogramGrayscaleData_);
+  float desvio = calcularDesvioPadrao(histogramGrayscaleData_, media);
+
+  std::string brilho = classificarBrilhoTexto(media);
+  std::string contraste = classificarContrasteTexto(desvio);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media) + " (" + brilho + ")");
+  lblStddevIntensity_->setText("Desvio: " + std::to_string(desvio) + " (" + contraste + ")");
 
   positionWindows();
 
@@ -189,7 +198,35 @@ void App::toggleEqualization() {
     btnToggleEqualization_->setText(kEqualizeText);
   }
 
+  const auto& hist = isEqualized_ ? histogramEqualizedData_ : histogramGrayscaleData_;
+
+  float media = calcularMediaHistograma(hist);
+  float desvio = calcularDesvioPadrao(hist, media);
+
+  std::string brilho = classificarBrilhoTexto(media);
+  std::string contraste = classificarContrasteTexto(desvio);
+
+  lblAvgIntensity_->setText("Média: " + std::to_string(media) + " (" + brilho + ")");
+  lblStddevIntensity_->setText("Desvio: " + std::to_string(desvio) + " (" + contraste + ")");
+
   createTextureFromCurrent();
+}
+
+bool App::saveCurrentImage(const std::string& path) {
+  SDL_Surface* surface = isEqualized_ ? equalizedSurface_.get() : originalGraySurface_.get();
+
+  if (!surface) {
+    SDL_Log("No surface available to save.");
+    return false;
+  }
+
+  if (!IMG_SavePNG(surface, path.c_str())) {
+    SDL_Log("Failed to save image: %s", SDL_GetError());
+    return false;
+  }
+
+  SDL_Log("Image saved successfully to %s", path.c_str());
+  return true;
 }
 
 void App::run() {
@@ -226,8 +263,7 @@ void App::handleKeyDown(const SDL_KeyboardEvent &e, bool &running) {
     toggleEqualization();
     break;
   case SDLK_S:
-    SDL_Log("Key 'S' pressed but save logic is not implemented yet");
-    // TODO: implementar logica de salvar imagem processada
+    saveCurrentImage("output_image.png");
     break;
   case SDLK_ESCAPE:
     SDL_Log("Escape key pressed, exiting...");
